@@ -1,4 +1,6 @@
-# Welcome to your Expo app 👋
+# Bem vindo ao BOXING TIMER 🥊
+
+Objetivo do projeto: Aprender os componentes base do react-native, seguindo um foco, estruturar e criar um projeto de "time" para boxeadores, auxiliando no seu dia-a-dia com os seus treinos e "sparrings".
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
