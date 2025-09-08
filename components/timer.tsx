@@ -2,30 +2,85 @@ import formattingInTime from "@/utils/formattingInTime";
 import React, { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 
+type SectionTypes = "action" | "interval";
+
 const sectionsTime = {
-  "action": 180,
-  "interval": 60,
+  action: 15,
+  interval: 10,
 };
 
 export default function Timer() {
+  const [section, setSection] = useState<SectionTypes | null>();
   const [timer, setTimer] = useState(sectionsTime["action"]);
   const [intervalId, setIntervalId] = useState<number | null>();
 
   const resetInterval = (id: number) => {
     clearInterval(id);
+    setTimer(sectionsTime["action"]);
+    setSection(null);
     setIntervalId(null);
+  };
+
+  console.log(timer, "TIMER");
+  console.log(section, "SECTION");
+
+  const continueTimer = () => {
+    if (!section) {
+      setSection("action");
+      setTimer(sectionsTime["action"]);
+    }
+
+    const id = setInterval(() => {
+      setTimer((prev: number) => {
+        console.log(prev, "PREVVVV");
+        // console.log(section, "SECTIOOOOOOOOOOONN");
+        if (prev === 0) {
+          let actualSection = section;
+
+          setSection((prevSection) => {
+            if(prevSection === "interval") {
+              actualSection = "action";
+              return "action";
+            }
+            actualSection = "interval";
+            return "interval";
+          });
+          console.log(actualSection, 'ACTUAL SECTION')
+          if(actualSection) {
+            console.log("ENTROU AQUI NO IFFF")
+            return sectionsTime[actualSection];
+          }
+
+          // if (section === "interval") {
+          //   setSection("action");
+          //   return sectionsTime["action"];
+          // }
+          // setSection("interval");
+          // return sectionsTime["interval"];
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    setIntervalId(id);
+  };
+
+  const startingTimer = () => {
+    let timerInitial = 5;
+    setTimer(timerInitial);
+
+    const id = setInterval(() => {
+      timerInitial -= 1;
+      setTimer(timerInitial);
+      if (timerInitial === 0) {
+        continueTimer();
+        clearInterval(id);
+      }
+    }, 1000);
   };
 
   const onPressButton = () => {
     if (!intervalId) {
-      const id = setInterval(() => {
-        setTimer((prev: number) => {
-          if (prev) return prev - 1;
-          resetInterval(id);
-          return 0;
-        });
-      }, 1000);
-      setIntervalId(id);
+      startingTimer();
     } else {
       resetInterval(intervalId);
     }
