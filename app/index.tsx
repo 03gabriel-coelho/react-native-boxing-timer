@@ -2,7 +2,13 @@ import Header from "@/components/header";
 import Timer from "@/components/timer";
 import { View } from "react-native";
 
+const sections = [
+  { title: "action", time: "3:00" },
+  { title: "interval", time: "1:00" },
+];
+
 export default function Home() {
+
   return (
     <View
       style={{
