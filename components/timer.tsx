@@ -5,11 +5,11 @@ import { Pressable, Text, View } from "react-native";
 type SectionTypes = "action" | "interval";
 
 const sectionsTime = {
-  action: 15,
-  interval: 10,
+  action: 180,
+  interval: 60,
 };
 
-const numberOfRounds = 3;
+const numberOfRounds = 12;
 
 export default function Timer() {
   const [section, setSection] = useState<SectionTypes | null>();
