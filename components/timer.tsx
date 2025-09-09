@@ -31,6 +31,21 @@ export default function Timer() {
     setRound(1);
   }, [intervalId]);
 
+  const advanceRound = useCallback(() => {
+    if (section) {
+      const nextSection = section === "interval" ? "action" : "interval";
+
+      if (nextSection === "action" && round === numberOfRounds) {
+        resetTimer();
+        return;
+      }
+
+      setSection(nextSection);
+      if (nextSection === "action") setRound((prevRound) => prevRound + 1);
+      setTimer(sectionsTime[nextSection]);
+    }
+  }, [section, resetTimer, round]);
+
   useEffect(() => {
     if (section && !intervalId && !isPaused) {
       const id = setInterval(() => {
@@ -98,18 +113,51 @@ export default function Timer() {
       <Text style={{ color: "#FFF", textAlign: "center", fontSize: 130 }}>
         {formattingInTime(timer)}
       </Text>
-      <View>
+      <View style={{ alignItems: "center" }}>
         <Text style={{ color: "#FFF", fontSize: 30 }}>
           Round {round}/{numberOfRounds}
         </Text>
-        <Pressable
-          onPress={onPressButton}
-          style={{ backgroundColor: "#FFF", padding: 10, marginTop: 10 }}
+        <View
+          style={{
+            display: "flex",
+            width: "100%",
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
         >
-          <Text style={{ color: "#000", textAlign: "center", fontSize: 20 }}>
-            {intervalId ? "Pausar" : "Iniciar"}
-          </Text>
-        </Pressable>
+          {section && (
+            <Pressable
+              onPress={resetTimer}
+              style={{ backgroundColor: "#FFF", padding: 10, marginTop: 10 }}
+            >
+              <Text
+                style={{ color: "#000", textAlign: "center", fontSize: 20 }}
+              >
+                Resetar
+              </Text>
+            </Pressable>
+          )}
+          <Pressable
+            onPress={onPressButton}
+            style={{ backgroundColor: "#FFF", padding: 10, marginTop: 10 }}
+          >
+            <Text style={{ color: "#000", textAlign: "center", fontSize: 20 }}>
+              {intervalId ? "Pausar" : "Iniciar"}
+            </Text>
+          </Pressable>
+          {section && (
+            <Pressable
+              onPress={advanceRound}
+              style={{ backgroundColor: "#FFF", padding: 10, marginTop: 10 }}
+            >
+              <Text
+                style={{ color: "#000", textAlign: "center", fontSize: 20 }}
+              >
+                Avançar
+              </Text>
+            </Pressable>
+          )}
+        </View>
       </View>
     </View>
   );
