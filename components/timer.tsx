@@ -1,5 +1,5 @@
 import formattingInTime from "@/utils/formattingInTime";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 
 type SectionTypes = "action" | "interval";
@@ -13,78 +13,63 @@ export default function Timer() {
   const [section, setSection] = useState<SectionTypes | null>();
   const [timer, setTimer] = useState(sectionsTime["action"]);
   const [intervalId, setIntervalId] = useState<number | null>();
+  const [isPaused, setIsPaused] = useState<boolean>(false);
 
   const resetInterval = (id: number) => {
     clearInterval(id);
-    setTimer(sectionsTime["action"]);
-    setSection(null);
     setIntervalId(null);
   };
 
-  console.log(timer, "TIMER");
-  console.log(section, "SECTION");
+  useEffect(() => {
+    if (section && !intervalId && !isPaused) {
+      const id = setInterval(() => {
+        setTimer((prev: number) => {
+          if (prev === 0) {
+            resetInterval(id);
 
-  const continueTimer = () => {
-    if (!section) {
-      setSection("action");
-      setTimer(sectionsTime["action"]);
-    }
+            setSection((prevSection) => {
+              return prevSection === "interval" ? "action" : "interval";
+            });
 
-    const id = setInterval(() => {
-      setTimer((prev: number) => {
-        console.log(prev, "PREVVVV");
-        // console.log(section, "SECTIOOOOOOOOOOONN");
-        if (prev === 0) {
-          let actualSection = section;
-
-          setSection((prevSection) => {
-            if(prevSection === "interval") {
-              actualSection = "action";
-              return "action";
+            if (section) {
+              return sectionsTime[
+                section === "interval" ? "action" : "interval"
+              ];
             }
-            actualSection = "interval";
-            return "interval";
-          });
-          console.log(actualSection, 'ACTUAL SECTION')
-          if(actualSection) {
-            console.log("ENTROU AQUI NO IFFF")
-            return sectionsTime[actualSection];
           }
+          return prev - 1;
+        });
+      }, 1000);
+      setIntervalId(id);
+    }
+  }, [section, intervalId, isPaused]);
 
-          // if (section === "interval") {
-          //   setSection("action");
-          //   return sectionsTime["action"];
-          // }
-          // setSection("interval");
-          // return sectionsTime["interval"];
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    setIntervalId(id);
-  };
-
-  const startingTimer = () => {
-    let timerInitial = 5;
-    setTimer(timerInitial);
-
-    const id = setInterval(() => {
-      timerInitial -= 1;
+  const onPressButton = useCallback(() => {
+    if (!intervalId || isPaused) {
+      const beforeTimer = timer;
+      let timerInitial = 5;
       setTimer(timerInitial);
-      if (timerInitial === 0) {
-        continueTimer();
-        clearInterval(id);
-      }
-    }, 1000);
-  };
 
-  const onPressButton = () => {
-    if (!intervalId) {
-      startingTimer();
+      const id = setInterval(() => {
+        timerInitial -= 1;
+        setTimer(timerInitial);
+        if (timerInitial === 0) {
+          if (!section) {
+            setSection("action");
+            setTimer(sectionsTime["action"]);
+          }
+          if (isPaused) {
+            setTimer(beforeTimer);
+            setIsPaused(false);
+          }
+          clearInterval(id);
+        }
+      }, 1000);
     } else {
       resetInterval(intervalId);
+      setIsPaused(true);
     }
-  };
+  }, [intervalId, section, isPaused, timer]);
 
   return (
     <View
