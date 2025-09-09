@@ -1,4 +1,5 @@
 import formattingInTime from "@/utils/formattingInTime";
+import Ionicons from '@expo/vector-icons/Ionicons';
 import React, { useCallback, useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 
@@ -110,7 +111,7 @@ export default function Timer() {
         alignItems: "center",
       }}
     >
-      <Text style={{ color: "#FFF", textAlign: "center", fontSize: 130 }}>
+      <Text style={{ color: "#FFF", textAlign: "center", fontSize: 150 }}>
         {formattingInTime(timer)}
       </Text>
       <View style={{ alignItems: "center" }}>
@@ -120,7 +121,7 @@ export default function Timer() {
         <View
           style={{
             display: "flex",
-            width: "100%",
+            width: "70%",
             flexDirection: "row",
             justifyContent: "space-between",
           }}
@@ -128,33 +129,23 @@ export default function Timer() {
           {section && (
             <Pressable
               onPress={resetTimer}
-              style={{ backgroundColor: "#FFF", padding: 10, marginTop: 10 }}
+              style={{ backgroundColor: "#FFF", padding: 10, marginTop: 10, borderRadius: "100%", alignItems: "center", justifyContent: "center" }}
             >
-              <Text
-                style={{ color: "#000", textAlign: "center", fontSize: 20 }}
-              >
-                Resetar
-              </Text>
+              <Ionicons name="refresh" size={50} color="black" />
             </Pressable>
           )}
           <Pressable
             onPress={onPressButton}
-            style={{ backgroundColor: "#FFF", padding: 10, marginTop: 10 }}
+            style={{ backgroundColor: "#FFF", padding: 10, marginTop: 10, borderRadius: "100%", alignItems: "center", justifyContent: "center" }}
           >
-            <Text style={{ color: "#000", textAlign: "center", fontSize: 20 }}>
-              {intervalId ? "Pausar" : "Iniciar"}
-            </Text>
+            {intervalId ? <Ionicons name="pause" size={50} color="black" /> : <Ionicons name="play" size={50} color="black" />}
           </Pressable>
           {section && (
             <Pressable
               onPress={advanceRound}
-              style={{ backgroundColor: "#FFF", padding: 10, marginTop: 10 }}
+              style={{ backgroundColor: "#FFF", padding: 10, marginTop: 10, borderRadius: "100%", alignItems: "center", justifyContent: "center" }}
             >
-              <Text
-                style={{ color: "#000", textAlign: "center", fontSize: 20 }}
-              >
-                Avançar
-              </Text>
+              <Ionicons name="play-forward" size={50} color="black" />
             </Pressable>
           )}
         </View>
