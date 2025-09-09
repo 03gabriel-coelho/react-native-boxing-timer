@@ -9,8 +9,11 @@ const sectionsTime = {
   interval: 10,
 };
 
+const numberOfRounds = 3;
+
 export default function Timer() {
   const [section, setSection] = useState<SectionTypes | null>();
+  const [round, setRound] = useState<number>(1);
   const [timer, setTimer] = useState(sectionsTime["action"]);
   const [intervalId, setIntervalId] = useState<number | null>();
   const [isPaused, setIsPaused] = useState<boolean>(false);
@@ -20,6 +23,14 @@ export default function Timer() {
     setIntervalId(null);
   };
 
+  const resetTimer = useCallback(() => {
+    if (intervalId) resetInterval(intervalId);
+    setSection(null);
+    setTimer(sectionsTime["action"]);
+    setIsPaused(false);
+    setRound(1);
+  }, [intervalId]);
+
   useEffect(() => {
     if (section && !intervalId && !isPaused) {
       const id = setInterval(() => {
@@ -27,14 +38,18 @@ export default function Timer() {
           if (prev === 0) {
             resetInterval(id);
 
-            setSection((prevSection) => {
-              return prevSection === "interval" ? "action" : "interval";
-            });
-
             if (section) {
-              return sectionsTime[
-                section === "interval" ? "action" : "interval"
-              ];
+              const nextSection =
+                section === "interval" ? "action" : "interval";
+
+              setSection(nextSection);
+
+              if (nextSection === "action" && round < numberOfRounds)
+                setRound((prevRound) => prevRound + 1);
+
+              if (nextSection === "action" && round === numberOfRounds)
+                resetTimer();
+              return sectionsTime[nextSection];
             }
           }
           return prev - 1;
@@ -42,7 +57,7 @@ export default function Timer() {
       }, 1000);
       setIntervalId(id);
     }
-  }, [section, intervalId, isPaused]);
+  }, [section, intervalId, isPaused, round, resetTimer]);
 
   const onPressButton = useCallback(() => {
     if (!intervalId || isPaused) {
@@ -84,7 +99,9 @@ export default function Timer() {
         {formattingInTime(timer)}
       </Text>
       <View>
-        <Text style={{ color: "#FFF", fontSize: 30 }}>Round 1/12</Text>
+        <Text style={{ color: "#FFF", fontSize: 30 }}>
+          Round {round}/{numberOfRounds}
+        </Text>
         <Pressable
           onPress={onPressButton}
           style={{ backgroundColor: "#FFF", padding: 10, marginTop: 10 }}
