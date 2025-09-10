@@ -26,6 +26,7 @@
       [
         "expo-splash-screen",
         {
+          "image": "./assets/luva_boxe.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
@@ -38,7 +39,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "9d7db7d2-508d-4d86-8922-59747e8515c9"
+        "projectId": "5c30b67f-ca35-4359-8d2d-38081052ba91"
       }
     }
   }
