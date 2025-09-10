@@ -146,7 +146,7 @@ export default function Timer({
         <View
           style={{
             display: "flex",
-            width: "70%",
+            width: "95%",
             flexDirection: "row",
             justifyContent: "space-between",
           }}
@@ -156,7 +156,7 @@ export default function Timer({
               onPress={resetTimer}
               style={{
                 backgroundColor: "#FFF",
-                padding: 10,
+                padding: 15,
                 marginTop: 10,
                 borderRadius: "100%",
                 alignItems: "center",
@@ -171,7 +171,7 @@ export default function Timer({
             disabled={disableStartButton}
             style={{
               backgroundColor: "#FFF",
-              padding: 10,
+              padding: 15,
               marginTop: 10,
               borderRadius: "100%",
               alignItems: "center",
@@ -189,7 +189,7 @@ export default function Timer({
               onPress={advanceRound}
               style={{
                 backgroundColor: "#FFF",
-                padding: 10,
+                padding: 15,
                 marginTop: 10,
                 borderRadius: "100%",
                 alignItems: "center",
