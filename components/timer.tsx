@@ -1,5 +1,5 @@
 import formattingInTime from "@/utils/formattingInTime";
-import Ionicons from '@expo/vector-icons/Ionicons';
+import Ionicons from "@expo/vector-icons/Ionicons";
 import React, { useCallback, useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 
@@ -10,14 +10,24 @@ const sectionsTime = {
   interval: 60,
 };
 
+// const sectionsTime = {
+//   action: 30,
+//   interval: 15,
+// };
+
 const numberOfRounds = 12;
 
-export default function Timer() {
+export default function Timer({
+  setBackgroundColor,
+}: {
+  setBackgroundColor: (color: string) => void;
+}) {
   const [section, setSection] = useState<SectionTypes | null>();
   const [round, setRound] = useState<number>(1);
   const [timer, setTimer] = useState(sectionsTime["action"]);
   const [intervalId, setIntervalId] = useState<number | null>();
   const [isPaused, setIsPaused] = useState<boolean>(false);
+  const [disableStartButton, setDisableStartButton] = useState<boolean>(false);
 
   const resetInterval = (id: number) => {
     clearInterval(id);
@@ -30,7 +40,8 @@ export default function Timer() {
     setTimer(sectionsTime["action"]);
     setIsPaused(false);
     setRound(1);
-  }, [intervalId]);
+    setBackgroundColor("black");
+  }, [intervalId, setBackgroundColor]);
 
   const advanceRound = useCallback(() => {
     if (section) {
@@ -42,10 +53,15 @@ export default function Timer() {
       }
 
       setSection(nextSection);
-      if (nextSection === "action") setRound((prevRound) => prevRound + 1);
+      if (nextSection === "action") {
+        setRound((prevRound) => prevRound + 1);
+        setBackgroundColor("green");
+      } else {
+        setBackgroundColor("red");
+      }
       setTimer(sectionsTime[nextSection]);
     }
-  }, [section, resetTimer, round]);
+  }, [section, resetTimer, round, setBackgroundColor]);
 
   useEffect(() => {
     if (section && !intervalId && !isPaused) {
@@ -60,8 +76,12 @@ export default function Timer() {
 
               setSection(nextSection);
 
-              if (nextSection === "action" && round < numberOfRounds)
+              if (nextSection === "interval") setBackgroundColor("red");
+
+              if (nextSection === "action" && round < numberOfRounds) {
+                setBackgroundColor("green");
                 setRound((prevRound) => prevRound + 1);
+              }
 
               if (nextSection === "action" && round === numberOfRounds)
                 resetTimer();
@@ -73,13 +93,14 @@ export default function Timer() {
       }, 1000);
       setIntervalId(id);
     }
-  }, [section, intervalId, isPaused, round, resetTimer]);
+  }, [section, intervalId, isPaused, round, resetTimer, setBackgroundColor]);
 
   const onPressButton = useCallback(() => {
     if (!intervalId || isPaused) {
       const beforeTimer = timer;
       let timerInitial = 5;
       setTimer(timerInitial);
+      setDisableStartButton(true);
 
       const id = setInterval(() => {
         timerInitial -= 1;
@@ -88,19 +109,23 @@ export default function Timer() {
           if (!section) {
             setSection("action");
             setTimer(sectionsTime["action"]);
+            setBackgroundColor("green");
           }
           if (isPaused) {
             setTimer(beforeTimer);
             setIsPaused(false);
+            setBackgroundColor("green");
           }
+          setDisableStartButton(false);
           clearInterval(id);
         }
       }, 1000);
     } else {
+      setBackgroundColor("orange");
       resetInterval(intervalId);
       setIsPaused(true);
     }
-  }, [intervalId, section, isPaused, timer]);
+  }, [intervalId, section, isPaused, timer, setBackgroundColor]);
 
   return (
     <View
@@ -129,21 +154,47 @@ export default function Timer() {
           {section && (
             <Pressable
               onPress={resetTimer}
-              style={{ backgroundColor: "#FFF", padding: 10, marginTop: 10, borderRadius: "100%", alignItems: "center", justifyContent: "center" }}
+              style={{
+                backgroundColor: "#FFF",
+                padding: 10,
+                marginTop: 10,
+                borderRadius: "100%",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
               <Ionicons name="refresh" size={50} color="black" />
             </Pressable>
           )}
           <Pressable
             onPress={onPressButton}
-            style={{ backgroundColor: "#FFF", padding: 10, marginTop: 10, borderRadius: "100%", alignItems: "center", justifyContent: "center" }}
+            disabled={disableStartButton}
+            style={{
+              backgroundColor: "#FFF",
+              padding: 10,
+              marginTop: 10,
+              borderRadius: "100%",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
-            {intervalId ? <Ionicons name="pause" size={50} color="black" /> : <Ionicons name="play" size={50} color="black" />}
+            {intervalId ? (
+              <Ionicons name="pause" size={50} color="black" />
+            ) : (
+              <Ionicons name="play" size={50} color="black" />
+            )}
           </Pressable>
           {section && (
             <Pressable
               onPress={advanceRound}
-              style={{ backgroundColor: "#FFF", padding: 10, marginTop: 10, borderRadius: "100%", alignItems: "center", justifyContent: "center" }}
+              style={{
+                backgroundColor: "#FFF",
+                padding: 10,
+                marginTop: 10,
+                borderRadius: "100%",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
               <Ionicons name="play-forward" size={50} color="black" />
             </Pressable>

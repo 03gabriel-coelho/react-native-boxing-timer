@@ -1,13 +1,10 @@
 import Header from "@/components/header";
 import Timer from "@/components/timer";
+import { useState } from "react";
 import { View } from "react-native";
 
-const sections = [
-  { title: "action", time: "3:00" },
-  { title: "interval", time: "1:00" },
-];
-
 export default function Home() {
+  const [backgroundColor, setBackgroundColor] = useState<string>("black");
 
   return (
     <View
@@ -15,11 +12,11 @@ export default function Home() {
         flex: 1,
         width: "100%",
         height: "100%",
-        backgroundColor: "black",
+        backgroundColor: backgroundColor,
       }}
     >
       <Header />
-      <Timer />
+      <Timer setBackgroundColor={setBackgroundColor} />
     </View>
   );
 }
