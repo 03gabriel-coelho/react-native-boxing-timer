@@ -1,7 +1,7 @@
 import formattingInTime from "@/utils/formattingInTime";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import React, { useCallback, useEffect, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 type SectionTypes = "action" | "interval";
 
@@ -128,55 +128,22 @@ export default function Timer({
   }, [intervalId, section, isPaused, timer, setBackgroundColor]);
 
   return (
-    <View
-      style={{
-        flexDirection: "column",
-        height: "80%",
-        justifyContent: "space-around",
-        alignItems: "center",
-      }}
-    >
-      <Text style={{ color: "#FFF", textAlign: "center", fontSize: 150 }}>
-        {formattingInTime(timer)}
-      </Text>
+    <View style={style.container}>
+      <Text style={style.textTimer}>{formattingInTime(timer)}</Text>
       <View style={{ alignItems: "center" }}>
-        <Text style={{ color: "#FFF", fontSize: 30 }}>
+        <Text style={style.textRound}>
           Round {round}/{numberOfRounds}
         </Text>
-        <View
-          style={{
-            display: "flex",
-            width: "95%",
-            flexDirection: "row",
-            justifyContent: "space-between",
-          }}
-        >
+        <View style={style.containerPressables}>
           {section && (
-            <Pressable
-              onPress={resetTimer}
-              style={{
-                backgroundColor: "#FFF",
-                padding: 15,
-                marginTop: 10,
-                borderRadius: "100%",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
+            <Pressable onPress={resetTimer} style={style.pressableAction}>
               <Ionicons name="refresh" size={50} color="black" />
             </Pressable>
           )}
           <Pressable
             onPress={onPressButton}
             disabled={disableStartButton}
-            style={{
-              backgroundColor: "#FFF",
-              padding: 15,
-              marginTop: 10,
-              borderRadius: "100%",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+            style={style.pressableAction}
           >
             {intervalId ? (
               <Ionicons name="pause" size={50} color="black" />
@@ -185,17 +152,7 @@ export default function Timer({
             )}
           </Pressable>
           {section && (
-            <Pressable
-              onPress={advanceRound}
-              style={{
-                backgroundColor: "#FFF",
-                padding: 15,
-                marginTop: 10,
-                borderRadius: "100%",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
+            <Pressable onPress={advanceRound} style={style.pressableAction}>
               <Ionicons name="play-forward" size={50} color="black" />
             </Pressable>
           )}
@@ -204,3 +161,32 @@ export default function Timer({
     </View>
   );
 }
+
+const style = StyleSheet.create({
+  container: {
+    flexDirection: "column",
+    height: "80%",
+    justifyContent: "space-around",
+    alignItems: "center",
+  },
+  textTimer: {
+    color: "#FFF",
+    textAlign: "center",
+    fontSize: 150,
+  },
+  textRound: { color: "#FFF", fontSize: 30 },
+  containerPressables: {
+    display: "flex",
+    width: "95%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  pressableAction: {
+    backgroundColor: "#FFF",
+    padding: 15,
+    marginTop: 10,
+    borderRadius: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});
