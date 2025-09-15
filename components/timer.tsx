@@ -153,16 +153,19 @@ export default function Timer({
         {formattingInTime(beforeId ? beforeTimer : timer)}
       </Text>
       <View style={{ alignItems: "center" }}>
-        <AnimatedRounds round={round} numberOfRounds={numberOfRounds}/>
+        <AnimatedRounds round={round} numberOfRounds={numberOfRounds} />
         <View style={style.containerPressables}>
           {section && isPaused ? (
-            <AnimatedPressable onPress={resetTimer}>
+            <AnimatedPressable onPress={resetTimer} directionStarting="left">
               <Ionicons name="refresh" size={75} color="#FFF" />
             </AnimatedPressable>
           ) : (
             <View style={{ width: 80, height: 80 }}></View>
           )}
-          <AnimatedPressable onPress={onPressMainButton}>
+          <AnimatedPressable
+            onPress={onPressMainButton}
+            directionStarting="bottom"
+          >
             {intervalId || beforeId ? (
               <Ionicons name="pause" size={75} color="#FFF" />
             ) : (

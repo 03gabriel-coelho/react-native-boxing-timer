@@ -8,7 +8,7 @@ export default function Home() {
 
   return (
     <View style={{ ...styles.container, backgroundColor: backgroundColor }}>
-      <Header />
+      <Header backgroundAppColor={backgroundColor}/>
       <Timer setBackgroundColor={setBackgroundColor} />
     </View>
   );
