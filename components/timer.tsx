@@ -4,6 +4,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import React, { useCallback, useEffect, useState } from "react";
 import { StyleSheet, Text, Vibration, View } from "react-native";
 import AnimatedPressable from "./ui/animatedPressable";
+import AnimatedRounds from "./ui/animatedRounds";
 
 type SectionTypes = "action" | "interval";
 
@@ -40,7 +41,7 @@ export default function Timer({
   };
 
   const resetTimer = useCallback(() => {
-    Vibration.vibrate(500);
+    Vibration.vibrate(100);
     if (intervalId) resetInterval(intervalId);
     setSection(null);
     setTimer(sectionsTime["action"]);
@@ -51,7 +52,7 @@ export default function Timer({
 
   const advanceRound = useCallback(() => {
     if (section) {
-      Vibration.vibrate(500);
+      Vibration.vibrate(100);
       if (intervalId) resetInterval(intervalId);
 
       const nextSection = section === "interval" ? "action" : "interval";
@@ -104,7 +105,7 @@ export default function Timer({
     }
   }, [section, intervalId, isPaused, round, resetTimer, setBackgroundColor]);
 
-  const onPressButton = useCallback(() => {
+  const onPressMainButton = useCallback(() => {
     if (beforeId) {
       clearInterval(beforeId);
       setBeforeId(null);
@@ -117,7 +118,7 @@ export default function Timer({
       const id = setInterval(() => {
         timerInitial -= 1;
         setBeforeTimer(timerInitial);
-        Vibration.vibrate(500);
+        Vibration.vibrate(100);
         if (timerInitial === 1) playBell();
 
         if (timerInitial === 0) {
@@ -139,7 +140,7 @@ export default function Timer({
       if (section) setBackgroundColor("orange");
       if (intervalId) resetInterval(intervalId);
       if (beforeId) clearInterval(beforeId);
-      Vibration.vibrate(500);
+      Vibration.vibrate(100);
       setBeforeId(null);
       setIsPaused(true);
     }
@@ -152,9 +153,7 @@ export default function Timer({
         {formattingInTime(beforeId ? beforeTimer : timer)}
       </Text>
       <View style={{ alignItems: "center" }}>
-        <Text style={style.textRound}>
-          Round {round}/{numberOfRounds}
-        </Text>
+        <AnimatedRounds round={round} numberOfRounds={numberOfRounds}/>
         <View style={style.containerPressables}>
           {section && isPaused ? (
             <AnimatedPressable onPress={resetTimer}>
@@ -163,7 +162,7 @@ export default function Timer({
           ) : (
             <View style={{ width: 80, height: 80 }}></View>
           )}
-          <AnimatedPressable onPress={onPressButton}>
+          <AnimatedPressable onPress={onPressMainButton}>
             {intervalId || beforeId ? (
               <Ionicons name="pause" size={75} color="#FFF" />
             ) : (
@@ -195,12 +194,6 @@ const style = StyleSheet.create({
     textAlign: "center",
     fontSize: 150,
     fontWeight: "bold",
-  },
-  textRound: {
-    color: "#FFF",
-    fontSize: 30,
-    fontWeight: "bold",
-    fontStyle: "italic",
   },
   containerPressables: {
     display: "flex",
