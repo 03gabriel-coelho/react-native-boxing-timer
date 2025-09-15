@@ -122,7 +122,7 @@ export default function Timer({
             setIsPaused(false);
             setBackgroundColor(section === "action" ? "green" : "red");
           }
-          setBeforeId(null);
+          setTimeout(() => setBeforeId(null), 300);
           clearInterval(id);
         }
       }, 1000);
@@ -147,25 +147,26 @@ export default function Timer({
           Round {round}/{numberOfRounds}
         </Text>
         <View style={style.containerPressables}>
-          {section && (
+          {section && isPaused ? (
             <AnimatedPressable onPress={resetTimer}>
               <Ionicons name="refresh" size={75} color="#FFF" />
             </AnimatedPressable>
+          ) : (
+            <View style={{ width: 80, height: 80 }}></View>
           )}
-          <AnimatedPressable
-            onPress={onPressButton}
-            // disabled={disableStartButton}
-          >
+          <AnimatedPressable onPress={onPressButton}>
             {intervalId || beforeId ? (
               <Ionicons name="pause" size={75} color="#FFF" />
             ) : (
               <Ionicons name="play" size={75} color="#FFF" />
             )}
           </AnimatedPressable>
-          {section && (
-            <AnimatedPressable onPress={advanceRound}>
+          {section && isPaused ? (
+            <AnimatedPressable onPress={advanceRound} directionStarting="right">
               <Ionicons name="play-forward" size={75} color="#FFF" />
             </AnimatedPressable>
+          ) : (
+            <View style={{ width: 80, height: 80 }}></View>
           )}
         </View>
       </View>
@@ -184,6 +185,7 @@ const style = StyleSheet.create({
     color: "#FFF",
     textAlign: "center",
     fontSize: 150,
+    fontWeight: "bold",
   },
   textRound: {
     color: "#FFF",

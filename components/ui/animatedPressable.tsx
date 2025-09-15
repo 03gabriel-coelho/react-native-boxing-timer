@@ -1,21 +1,43 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Animated, Easing, Pressable, StyleSheet } from "react-native";
 
 interface Props {
   children: any;
   onPress: (event: any) => void;
   disabled?: boolean;
+  directionStarting?: "left" | "right" | "bottom" | "top";
+  styleAnimated?: StyleSheet;
 }
 
 export default function AnimatedPressable({
   children,
   onPress,
   disabled,
+  directionStarting,
+  styleAnimated,
 }: Props) {
   const size = useRef(new Animated.Value(80)).current;
+  const position = useRef(new Animated.Value(-200)).current;
+
+  useEffect(() => {
+    Animated.timing(position, {
+      toValue: 0,
+      duration: 500,
+      easing: Easing.linear,
+      useNativeDriver: false,
+    }).start();
+  }, [position]);
 
   return (
-    <Animated.View style={{ ...style.view, width: size, height: size }}>
+    <Animated.View
+      style={{
+        ...style.view,
+        ...styleAnimated,
+        width: size,
+        height: size,
+        [directionStarting || "left"]: position,
+      }}
+    >
       <Pressable
         onPress={(event) => {
           Animated.timing(size, {
@@ -46,12 +68,12 @@ export default function AnimatedPressable({
 
 const style = StyleSheet.create({
   view: {
+    position: "relative",
     width: 80,
     height: 80,
     marginTop: 10,
     borderRadius: "100%",
     alignItems: "center",
     justifyContent: "center",
-    position: "relative",
   },
 });
