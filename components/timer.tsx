@@ -1,7 +1,8 @@
+import useBellSound from "@/hooks/useBellSound";
 import formattingInTime from "@/utils/formattingInTime";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import React, { useCallback, useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, Vibration, View } from "react-native";
 import AnimatedPressable from "./ui/animatedPressable";
 
 type SectionTypes = "action" | "interval";
@@ -23,6 +24,8 @@ export default function Timer({
 }: {
   setBackgroundColor: (color: string) => void;
 }) {
+  const { playBell } = useBellSound();
+
   const [section, setSection] = useState<SectionTypes | null>();
   const [round, setRound] = useState<number>(1);
   const [timer, setTimer] = useState(sectionsTime["action"]);
@@ -37,6 +40,7 @@ export default function Timer({
   };
 
   const resetTimer = useCallback(() => {
+    Vibration.vibrate(500);
     if (intervalId) resetInterval(intervalId);
     setSection(null);
     setTimer(sectionsTime["action"]);
@@ -47,6 +51,7 @@ export default function Timer({
 
   const advanceRound = useCallback(() => {
     if (section) {
+      Vibration.vibrate(500);
       if (intervalId) resetInterval(intervalId);
 
       const nextSection = section === "interval" ? "action" : "interval";
@@ -112,6 +117,9 @@ export default function Timer({
       const id = setInterval(() => {
         timerInitial -= 1;
         setBeforeTimer(timerInitial);
+        Vibration.vibrate(500);
+        if (timerInitial === 1) playBell();
+
         if (timerInitial === 0) {
           if (!section) {
             setSection("action");
@@ -131,10 +139,11 @@ export default function Timer({
       if (section) setBackgroundColor("orange");
       if (intervalId) resetInterval(intervalId);
       if (beforeId) clearInterval(beforeId);
+      Vibration.vibrate(500);
       setBeforeId(null);
       setIsPaused(true);
     }
-  }, [intervalId, section, isPaused, setBackgroundColor, beforeId]);
+  }, [intervalId, section, isPaused, setBackgroundColor, beforeId, playBell]);
 
   return (
     <View style={style.container}>
