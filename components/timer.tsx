@@ -28,7 +28,8 @@ export default function Timer({
   const [timer, setTimer] = useState(sectionsTime["action"]);
   const [intervalId, setIntervalId] = useState<number | null>();
   const [isPaused, setIsPaused] = useState<boolean>(false);
-  const [disableStartButton, setDisableStartButton] = useState<boolean>(false);
+  const [beforeTimer, setBeforeTimer] = useState<number>(5);
+  const [beforeId, setBeforeId] = useState<number | null>();
 
   const resetInterval = (id: number) => {
     clearInterval(id);
@@ -46,6 +47,8 @@ export default function Timer({
 
   const advanceRound = useCallback(() => {
     if (section) {
+      if (intervalId) resetInterval(intervalId);
+
       const nextSection = section === "interval" ? "action" : "interval";
 
       if (nextSection === "action" && round === numberOfRounds) {
@@ -62,7 +65,7 @@ export default function Timer({
       }
       setTimer(sectionsTime[nextSection]);
     }
-  }, [section, resetTimer, round, setBackgroundColor]);
+  }, [section, resetTimer, round, setBackgroundColor, intervalId]);
 
   useEffect(() => {
     if (section && !intervalId && !isPaused) {
@@ -97,15 +100,18 @@ export default function Timer({
   }, [section, intervalId, isPaused, round, resetTimer, setBackgroundColor]);
 
   const onPressButton = useCallback(() => {
-    if (!intervalId || isPaused) {
-      const beforeTimer = timer;
+    if (beforeId) {
+      clearInterval(beforeId);
+      setBeforeId(null);
+    }
+
+    if (!beforeId && (!intervalId || isPaused)) {
       let timerInitial = 5;
-      setTimer(timerInitial);
-      setDisableStartButton(true);
+      setBeforeTimer(timerInitial);
 
       const id = setInterval(() => {
         timerInitial -= 1;
-        setTimer(timerInitial);
+        setBeforeTimer(timerInitial);
         if (timerInitial === 0) {
           if (!section) {
             setSection("action");
@@ -113,25 +119,29 @@ export default function Timer({
             setBackgroundColor("green");
           }
           if (isPaused) {
-            setTimer(beforeTimer);
             setIsPaused(false);
-            setBackgroundColor("green");
+            setBackgroundColor(section === "action" ? "green" : "red");
           }
-          setDisableStartButton(false);
+          setBeforeId(null);
           clearInterval(id);
         }
       }, 1000);
+      setBeforeId(id);
     } else {
-      setBackgroundColor("orange");
-      resetInterval(intervalId);
+      if (section) setBackgroundColor("orange");
+      if (intervalId) resetInterval(intervalId);
+      if (beforeId) clearInterval(beforeId);
+      setBeforeId(null);
       setIsPaused(true);
     }
-  }, [intervalId, section, isPaused, timer, setBackgroundColor]);
+  }, [intervalId, section, isPaused, setBackgroundColor, beforeId]);
 
   return (
     <View style={style.container}>
       <View></View>
-      <Text style={style.textTimer}>{formattingInTime(timer)}</Text>
+      <Text style={style.textTimer}>
+        {formattingInTime(beforeId ? beforeTimer : timer)}
+      </Text>
       <View style={{ alignItems: "center" }}>
         <Text style={style.textRound}>
           Round {round}/{numberOfRounds}
@@ -144,9 +154,9 @@ export default function Timer({
           )}
           <AnimatedPressable
             onPress={onPressButton}
-            disabled={disableStartButton}
+            // disabled={disableStartButton}
           >
-            {intervalId ? (
+            {intervalId || beforeId ? (
               <Ionicons name="pause" size={75} color="#FFF" />
             ) : (
               <Ionicons name="play" size={75} color="#FFF" />
@@ -175,7 +185,12 @@ const style = StyleSheet.create({
     textAlign: "center",
     fontSize: 150,
   },
-  textRound: { color: "#FFF", fontSize: 30, fontWeight: "bold", fontStyle: "italic" },
+  textRound: {
+    color: "#FFF",
+    fontSize: 30,
+    fontWeight: "bold",
+    fontStyle: "italic",
+  },
   containerPressables: {
     display: "flex",
     width: "95%",

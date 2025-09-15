@@ -19,7 +19,7 @@ export default function AnimatedPressable({
       <Pressable
         onPress={(event) => {
           Animated.timing(size, {
-            toValue: 85,
+            toValue: 88,
             duration: 300,
             easing: Easing.linear,
             useNativeDriver: false,
