@@ -13,7 +13,6 @@ export default function AnimatedPressable({
   disabled,
 }: Props) {
   const size = useRef(new Animated.Value(80)).current;
-  const backGroundColor = useRef(new Animated.Value(255)).current;
 
   return (
     <Animated.View style={{ ...style.view, width: size, height: size }}>
