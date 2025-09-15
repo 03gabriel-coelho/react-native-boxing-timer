@@ -31,5 +31,6 @@ const style = StyleSheet.create({
   textInfo: {
     color: "#FFF",
     fontSize: 20,
+    fontWeight: "bold",
   },
 });
