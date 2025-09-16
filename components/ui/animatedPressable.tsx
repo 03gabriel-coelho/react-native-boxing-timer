@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Animated, Easing, Pressable, StyleSheet } from "react-native";
+import { Animated, Easing, StyleSheet, TouchableOpacity } from "react-native";
 
 interface Props {
   children: any;
@@ -38,7 +38,7 @@ export default function AnimatedPressable({
         [directionStarting || "left"]: position,
       }}
     >
-      <Pressable
+      <TouchableOpacity
         onPress={(event) => {
           Animated.timing(size, {
             toValue: 88,
@@ -61,7 +61,7 @@ export default function AnimatedPressable({
         style={{ alignItems: "center", justifyContent: "center" }}
       >
         {children}
-      </Pressable>
+      </TouchableOpacity>
     </Animated.View>
   );
 }

@@ -22,8 +22,10 @@ const numberOfRounds = 12;
 
 export default function Timer({
   setBackgroundColor,
+  setHiddenStatusBar,
 }: {
   setBackgroundColor: (color: string) => void;
+  setHiddenStatusBar: (status: boolean) => void;
 }) {
   const { playBell } = useBellSound();
 
@@ -77,13 +79,14 @@ export default function Timer({
     if (section && !intervalId && !isPaused) {
       const id = setInterval(() => {
         setTimer((prev: number) => {
+          if (prev === 1) playBell();
           if (prev === 0) {
             resetInterval(id);
 
             if (section) {
               const nextSection =
                 section === "interval" ? "action" : "interval";
-
+              Vibration.vibrate(1000);
               setSection(nextSection);
 
               if (nextSection === "interval") setBackgroundColor("red");
@@ -103,7 +106,15 @@ export default function Timer({
       }, 1000);
       setIntervalId(id);
     }
-  }, [section, intervalId, isPaused, round, resetTimer, setBackgroundColor]);
+  }, [
+    section,
+    intervalId,
+    isPaused,
+    round,
+    resetTimer,
+    setBackgroundColor,
+    playBell,
+  ]);
 
   const onPressMainButton = useCallback(() => {
     if (beforeId) {
@@ -132,11 +143,13 @@ export default function Timer({
             setBackgroundColor(section === "action" ? "green" : "red");
           }
           setTimeout(() => setBeforeId(null), 300);
+          setHiddenStatusBar(true);
           clearInterval(id);
         }
       }, 1000);
       setBeforeId(id);
     } else {
+      setHiddenStatusBar(false);
       if (section) setBackgroundColor("orange");
       if (intervalId) resetInterval(intervalId);
       if (beforeId) clearInterval(beforeId);
@@ -144,7 +157,15 @@ export default function Timer({
       setBeforeId(null);
       setIsPaused(true);
     }
-  }, [intervalId, section, isPaused, setBackgroundColor, beforeId, playBell]);
+  }, [
+    intervalId,
+    section,
+    isPaused,
+    setBackgroundColor,
+    beforeId,
+    playBell,
+    setHiddenStatusBar,
+  ]);
 
   return (
     <View style={style.container}>
