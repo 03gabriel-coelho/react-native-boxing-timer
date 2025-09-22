@@ -2,7 +2,13 @@ import useBellSound from "@/hooks/useBellSound";
 import formattingInTime from "@/utils/formattingInTime";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import React, { useCallback, useEffect, useState } from "react";
-import { StyleSheet, Text, Vibration, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  Vibration,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import AnimatedPressable from "./ui/animatedPressable";
 import AnimatedRounds from "./ui/animatedRounds";
 
@@ -28,6 +34,7 @@ export default function Timer({
   setHiddenStatusBar: (status: boolean) => void;
 }) {
   const { playBell } = useBellSound();
+  const { width } = useWindowDimensions();
 
   const [section, setSection] = useState<SectionTypes | null>();
   const [round, setRound] = useState<number>(1);
@@ -170,7 +177,7 @@ export default function Timer({
   return (
     <View style={style.container}>
       <View></View>
-      <Text style={style.textTimer}>
+      <Text style={{ ...style.textTimer, fontSize: width * 0.37 }}>
         {formattingInTime(beforeId ? beforeTimer : timer)}
       </Text>
       <View style={{ alignItems: "center" }}>
@@ -216,7 +223,6 @@ const style = StyleSheet.create({
   textTimer: {
     color: "#FFF",
     textAlign: "center",
-    fontSize: 150,
     fontWeight: "bold",
   },
   containerPressables: {
