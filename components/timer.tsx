@@ -19,11 +19,6 @@ const sectionsTime = {
   interval: 60,
 };
 
-// const sectionsTime = {
-//   action: 30,
-//   interval: 15,
-// };
-
 const numberOfRounds = 12;
 
 export default function Timer({
@@ -183,16 +178,20 @@ export default function Timer({
       <View style={{ alignItems: "center" }}>
         <AnimatedRounds round={round} numberOfRounds={numberOfRounds} />
         <View style={style.containerPressables}>
-          {section && isPaused ? (
-            <AnimatedPressable onPress={resetTimer} directionStarting="left">
-              <Ionicons name="refresh" size={75} color="#FFF" />
-            </AnimatedPressable>
-          ) : (
+          <AnimatedPressable
+            onPress={resetTimer}
+            directionStarting="left"
+            visible={!!(section && isPaused)}
+          >
+            <Ionicons name="refresh" size={75} color="#FFF" />
+          </AnimatedPressable>
+          {!(section && isPaused) && (
             <View style={{ width: 80, height: 80 }}></View>
           )}
           <AnimatedPressable
             onPress={onPressMainButton}
             directionStarting="bottom"
+            visible
           >
             {intervalId || beforeId ? (
               <Ionicons name="pause" size={75} color="#FFF" />
@@ -200,11 +199,14 @@ export default function Timer({
               <Ionicons name="play" size={75} color="#FFF" />
             )}
           </AnimatedPressable>
-          {section && isPaused ? (
-            <AnimatedPressable onPress={advanceRound} directionStarting="right">
-              <Ionicons name="play-forward" size={75} color="#FFF" />
-            </AnimatedPressable>
-          ) : (
+          <AnimatedPressable
+            onPress={advanceRound}
+            directionStarting="right"
+            visible={!!(section && isPaused)}
+          >
+            <Ionicons name="play-forward" size={75} color="#FFF" />
+          </AnimatedPressable>
+          {!(section && isPaused) && (
             <View style={{ width: 80, height: 80 }}></View>
           )}
         </View>

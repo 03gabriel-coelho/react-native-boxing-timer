@@ -7,6 +7,7 @@ interface Props {
   disabled?: boolean;
   directionStarting?: "left" | "right" | "bottom" | "top";
   styleAnimated?: StyleSheet;
+  visible: boolean;
 }
 
 export default function AnimatedPressable({
@@ -15,18 +16,28 @@ export default function AnimatedPressable({
   disabled,
   directionStarting,
   styleAnimated,
+  visible,
 }: Props) {
   const size = useRef(new Animated.Value(80)).current;
   const position = useRef(new Animated.Value(-200)).current;
 
   useEffect(() => {
-    Animated.timing(position, {
-      toValue: 0,
-      duration: 500,
-      easing: Easing.linear,
-      useNativeDriver: false,
-    }).start();
-  }, [position]);
+    if (visible) {
+      Animated.timing(position, {
+        toValue: 0,
+        duration: 350,
+        easing: Easing.linear,
+        useNativeDriver: false,
+      }).start();
+    } else {
+      Animated.timing(position, {
+        toValue: -200,
+        duration: 350,
+        easing: Easing.linear,
+        useNativeDriver: false,
+      }).start();
+    }
+  }, [position, visible]);
 
   return (
     <Animated.View
