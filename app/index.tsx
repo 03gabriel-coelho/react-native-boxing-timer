@@ -9,18 +9,24 @@ export default function Home() {
 
   return (
     <View style={{ ...styles.container, backgroundColor: backgroundColor }}>
+      <View
+        style={{
+          width: "100%",
+          height: hiddenStatusBar ? (StatusBar.currentHeight || 20) - 20 : 0,
+        }}
+      ></View>
       <StatusBar
         animated={false}
         backgroundColor={backgroundColor}
         hidden={hiddenStatusBar}
       />
-      <Header
-        backgroundAppColor={backgroundColor}
-        hiddenStatusBar={hiddenStatusBar}
-      />
       <Timer
         setBackgroundColor={setBackgroundColor}
         setHiddenStatusBar={setHiddenStatusBar}
+      />
+      <Header
+        backgroundAppColor={backgroundColor}
+        hiddenStatusBar={hiddenStatusBar}
       />
     </View>
   );

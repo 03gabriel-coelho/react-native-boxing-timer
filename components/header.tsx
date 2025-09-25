@@ -21,7 +21,7 @@ export default function Header({ backgroundAppColor, hiddenStatusBar }: Props) {
 
   useEffect(() => {
     Animated.timing(positionValue, {
-      toValue: hiddenStatusBar ? 500 : 0,
+      toValue: hiddenStatusBar ? -200 : 10,
       duration: 500,
       easing: Easing.linear,
       useNativeDriver: false,
@@ -33,6 +33,7 @@ export default function Header({ backgroundAppColor, hiddenStatusBar }: Props) {
       <ModalToChange
         modalVisible={modalEditAction}
         setModalVisible={setModalEditAction}
+        backgroundColorButton={backgroundAppColor}
       />
       <TouchableOpacity
         style={{ ...style.pressableActions }}
@@ -62,11 +63,10 @@ const style = StyleSheet.create({
   containerInfo: {
     flexDirection: "row",
     width: "100%",
-    paddingTop: 20,
     display: "flex",
     justifyContent: "space-around",
     alignItems: "center",
-    position: "relative",
+    position: "absolute",
   },
   textInfo: {
     color: "#FFF",
