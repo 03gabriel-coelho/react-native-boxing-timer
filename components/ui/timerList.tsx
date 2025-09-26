@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import {
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -9,20 +9,49 @@ import {
   VirtualizedList,
 } from "react-native";
 
-const Item = ({ title }: any) => (
-  <View style={styles.item}>
-    <Text style={styles.title}>{title}</Text>
-  </View>
-);
+const Item = ({ title, id, scrollY }: any) => {
+  // console.log(id, selectedValue, 'aaa')
+
+  const idHeight = id * 40;
+
+  const isSelected = scrollY >= idHeight - 60 && scrollY < idHeight - 20;
+
+  const opacityText = isSelected ? 1 : 0.3;
+
+  const fontSize = isSelected ? 24 : 20;
+
+  return (
+    <View style={styles.item}>
+      <Text
+        style={{
+          ...styles.title,
+          color: `rgba(0, 0, 0, ${opacityText})`,
+          fontSize,
+        }}
+      >
+        {title}
+      </Text>
+    </View>
+  );
+};
 
 const getItem = (_data: unknown, index: number) => ({
-  id: index + 1,
-  title: `${index + 1 < 10 ? "0" : ""}${index + 1}`,
+  id: index,
+  title:
+    index === 0 || index === 62
+      ? ""
+      : `${index - 1 < 10 ? "0" : ""}${index - 1}`,
 });
 
-const getItemCount = (_data: unknown) => 60;
+const getItemCount = (data: any) => 63;
 
-export default function TimerList() {
+interface TimerListProps {
+  defaultTimer: number;
+}
+
+export default function TimerList({ defaultTimer }: TimerListProps) {
+  const [scrollY, setScrollY] = useState(0);
+  const [selectedTimer, setSelectedTimer] = useState<number>(defaultTimer);
   const listRef = useRef<VirtualizedList<any>>(null);
 
   const onScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -40,19 +69,25 @@ export default function TimerList() {
       nextValue = nextValue - isCentralized;
     }
 
-    scrollRef?.scrollTo({ y: nextValue, animated: true });
+    // console.log(nextValue, 'NEXT VALUE'); ERRO NA ANIMAÇÃO FICAR RETORNANDO ONDE ESTAVA ANTES DE ROLAR
+    // console.log(scrollY, 'SCROLL ATUAL')
 
-    console.log(nextValue / 40 + 2, 'VALOR SELECIONADO!!!')
+    scrollRef?.scrollTo({ y: nextValue});
+
+    setSelectedTimer(nextValue / 40);
   };
 
   return (
     <VirtualizedList
-      style={{ height: 120 }}
+      style={{ height: 120, width: 100 }}
       ref={listRef}
       initialNumToRender={3}
+      showsVerticalScrollIndicator={false}
       renderItem={(data) => {
-        // console.log(data, "DATA");
-        return <Item title={data.item.title} />;
+        // console.log(data.separators, 'DATA')
+        return (
+          <Item title={data.item.title} id={data.item.id} scrollY={scrollY} />
+        );
       }}
       keyExtractor={(item: any) => {
         return item.id;
@@ -65,8 +100,10 @@ export default function TimerList() {
         };
       }}
       getItemCount={getItemCount}
+      onScroll={(event) => setScrollY(event.nativeEvent.contentOffset.y)}
       getItem={getItem}
-      initialScrollIndex={30 - 2} // 30 VALOR DEFAULT
+      initialScrollIndex={defaultTimer} // 30 VALOR DEFAULT
+      // onScrollEndDrag={onScrollEnd}
       onMomentumScrollEnd={onScrollEnd}
       scrollEventThrottle={16}
     />
@@ -78,7 +115,6 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: "center",
     alignItems: "center",
-    // padding: 20,
   },
   title: {
     fontSize: 20,

@@ -27,9 +27,9 @@ export default function ModalToChange({
         <View style={styles.modalView}>
           <Text style={styles.header}>Alterar tempo de ação</Text>
           <View style={styles.containerLists}>
-            <TimerList />
+            <TimerList defaultTimer={3}/>
             <View style={{ backgroundColor: backgroundColorButton, width: 1, height: "60%" }}/>
-            <TimerList />
+            <TimerList defaultTimer={0}/>
           </View>
           <View style={styles.containerButton}>
             <Pressable
