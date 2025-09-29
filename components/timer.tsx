@@ -1,4 +1,5 @@
 import useBellSound from "@/hooks/useBellSound";
+import { TimerTypes } from "@/types/timer";
 import formattingInTime from "@/utils/formattingInTime";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import React, { useCallback, useEffect, useState } from "react";
@@ -12,31 +13,23 @@ import {
 import AnimatedPressable from "./ui/animatedPressable";
 import AnimatedRounds from "./ui/animatedRounds";
 
-type SectionTypes = "action" | "interval";
-
-const sectionsTime = {
-  action: 180,
-  interval: 60,
-};
-
 const numberOfRounds = 12;
 
 export default function Timer({
   setBackgroundColor,
   setHiddenStatusBar,
+  setTimer,
+  timer,
 }: {
   setBackgroundColor: (color: string) => void;
   setHiddenStatusBar: (status: boolean) => void;
+  setTimer: React.Dispatch<React.SetStateAction<TimerTypes>>;
+  timer: TimerTypes;
 }) {
   const { playBell } = useBellSound();
   const { width } = useWindowDimensions();
-
-  const [section, setSection] = useState<SectionTypes | null>();
-  const [round, setRound] = useState<number>(1);
-  const [timer, setTimer] = useState(sectionsTime["action"]);
   const [intervalId, setIntervalId] = useState<number | null>();
-  const [isPaused, setIsPaused] = useState<boolean>(false);
-  const [beforeTimer, setBeforeTimer] = useState<number>(5);
+  const [beforeTimer, setBeforeTimer] = useState<number>(timer.beforeTimer);
   const [beforeId, setBeforeId] = useState<number | null>();
 
   const resetInterval = (id: number) => {
@@ -47,75 +40,107 @@ export default function Timer({
   const resetTimer = useCallback(() => {
     Vibration.vibrate(100);
     if (intervalId) resetInterval(intervalId);
-    setSection(null);
-    setTimer(sectionsTime["action"]);
-    setIsPaused(false);
-    setRound(1);
+    setTimer((prevTimer) => ({
+      ...prevTimer,
+      actualTimer: prevTimer.action,
+      section: null,
+      round: 1,
+      isPaused: false,
+    }));
     setBackgroundColor("black");
-  }, [intervalId, setBackgroundColor]);
+  }, [intervalId, setBackgroundColor, setTimer]);
 
   const advanceRound = useCallback(() => {
-    if (section) {
+    if (timer.section) {
       Vibration.vibrate(100);
       if (intervalId) resetInterval(intervalId);
 
-      const nextSection = section === "interval" ? "action" : "interval";
+      const nextSection = timer.section === "interval" ? "action" : "interval";
 
-      if (nextSection === "action" && round === numberOfRounds) {
+      if (nextSection === "action" && timer.round === numberOfRounds) {
         resetTimer();
         return;
       }
 
-      setSection(nextSection);
+      setTimer((prevTimer) => ({
+        ...prevTimer,
+        section: nextSection,
+      }));
       if (nextSection === "action") {
-        setRound((prevRound) => prevRound + 1);
+        setTimer((prevTimer) => ({
+          ...prevTimer,
+          round: prevTimer.round + 1,
+        }));
         setBackgroundColor("green");
       } else {
         setBackgroundColor("red");
       }
-      setTimer(sectionsTime[nextSection]);
+
+      setTimer((prevTimer) => ({
+        ...prevTimer,
+        actualTimer: prevTimer[nextSection],
+      }));
     }
-  }, [section, resetTimer, round, setBackgroundColor, intervalId]);
+  }, [
+    resetTimer,
+    timer.round,
+    setBackgroundColor,
+    intervalId,
+    setTimer,
+    timer.section,
+  ]);
 
   useEffect(() => {
-    if (section && !intervalId && !isPaused) {
+    if (timer.section && !intervalId && !timer.isPaused) {
       const id = setInterval(() => {
-        setTimer((prev: number) => {
-          if (prev === 1) playBell();
-          if (prev === 0) {
+        setTimer((prevTimer) => {
+          if (prevTimer.actualTimer === 1) playBell();
+          if (prevTimer.actualTimer === 0) {
             resetInterval(id);
 
-            if (section) {
+            if (timer.section) {
               const nextSection =
-                section === "interval" ? "action" : "interval";
+                timer.section === "interval" ? "action" : "interval";
               Vibration.vibrate(1000);
-              setSection(nextSection);
+              setTimer((prevTimer) => ({ ...prevTimer, section: nextSection }));
 
               if (nextSection === "interval") setBackgroundColor("red");
 
-              if (nextSection === "action" && round < numberOfRounds) {
+              if (nextSection === "action" && timer.round < numberOfRounds) {
                 setBackgroundColor("green");
-                setRound((prevRound) => prevRound + 1);
+                setTimer((prevTimer) => ({
+                  ...prevTimer,
+                  round: prevTimer.round + 1,
+                }));
               }
 
-              if (nextSection === "action" && round === numberOfRounds)
+              if (nextSection === "action" && timer.round === numberOfRounds)
                 resetTimer();
-              return sectionsTime[nextSection];
+
+              return {
+                ...prevTimer,
+                actualTimer: prevTimer[nextSection],
+              };
             }
           }
-          return prev - 1;
+
+          return {
+            ...prevTimer,
+            actualTimer: prevTimer.actualTimer - 1,
+          };
         });
       }, 1000);
       setIntervalId(id);
     }
   }, [
-    section,
+    timer.section,
     intervalId,
-    isPaused,
-    round,
+    timer.isPaused,
+    timer.round,
     resetTimer,
     setBackgroundColor,
     playBell,
+    setTimer,
   ]);
 
   const onPressMainButton = useCallback(() => {
@@ -124,8 +149,8 @@ export default function Timer({
       setBeforeId(null);
     }
 
-    if (!beforeId && (!intervalId || isPaused)) {
-      let timerInitial = 5;
+    if (!beforeId && (!intervalId || timer.isPaused)) {
+      let timerInitial = timer.beforeTimer;
       setBeforeTimer(timerInitial);
 
       const id = setInterval(() => {
@@ -135,14 +160,20 @@ export default function Timer({
         if (timerInitial === 1) playBell();
 
         if (timerInitial === 0) {
-          if (!section) {
-            setSection("action");
-            setTimer(sectionsTime["action"]);
+          if (!timer.section) {
+            setTimer((prevTimer) => ({
+              ...prevTimer,
+              actualTimer: prevTimer["action"],
+              section: "action",
+            }));
             setBackgroundColor("green");
           }
-          if (isPaused) {
-            setIsPaused(false);
-            setBackgroundColor(section === "action" ? "green" : "red");
+          if (timer.isPaused) {
+            setTimer((prevTimer) => ({
+              ...prevTimer,
+              isPaused: false,
+            }));
+            setBackgroundColor(timer.section === "action" ? "green" : "red");
           }
           setTimeout(() => setBeforeId(null), 300);
           setHiddenStatusBar(true);
@@ -152,40 +183,45 @@ export default function Timer({
       setBeforeId(id);
     } else {
       setHiddenStatusBar(false);
-      if (section) setBackgroundColor("orange");
+      if (timer.section) setBackgroundColor("orange");
       if (intervalId) resetInterval(intervalId);
       if (beforeId) clearInterval(beforeId);
       Vibration.vibrate(100);
       setBeforeId(null);
-      setIsPaused(true);
+      setTimer((prevTimer) => ({
+        ...prevTimer,
+        isPaused: true,
+      }));
     }
   }, [
     intervalId,
-    section,
-    isPaused,
+    timer.section,
+    timer.isPaused,
+    timer.beforeTimer,
     setBackgroundColor,
     beforeId,
     playBell,
     setHiddenStatusBar,
+    setTimer,
   ]);
 
   return (
     <View style={style.container}>
       <View></View>
       <Text style={{ ...style.textTimer, fontSize: width * 0.37 }}>
-        {formattingInTime(beforeId ? beforeTimer : timer)}
+        {formattingInTime(beforeId ? beforeTimer : timer.actualTimer)}
       </Text>
       <View style={{ alignItems: "center" }}>
-        <AnimatedRounds round={round} numberOfRounds={numberOfRounds} />
+        <AnimatedRounds round={timer.round} numberOfRounds={numberOfRounds} />
         <View style={style.containerPressables}>
           <AnimatedPressable
             onPress={resetTimer}
             directionStarting="left"
-            visible={!!(section && isPaused)}
+            visible={!!(timer.section && timer.isPaused)}
           >
             <Ionicons name="refresh" size={75} color="#FFF" />
           </AnimatedPressable>
-          {!(section && isPaused) && (
+          {!(timer.section && timer.isPaused) && (
             <View style={{ width: 80, height: 80 }}></View>
           )}
           <AnimatedPressable
@@ -202,11 +238,11 @@ export default function Timer({
           <AnimatedPressable
             onPress={advanceRound}
             directionStarting="right"
-            visible={!!(section && isPaused)}
+            visible={!!(timer.section && timer.isPaused)}
           >
             <Ionicons name="play-forward" size={75} color="#FFF" />
           </AnimatedPressable>
-          {!(section && isPaused) && (
+          {!(timer.section && timer.isPaused) && (
             <View style={{ width: 80, height: 80 }}></View>
           )}
         </View>

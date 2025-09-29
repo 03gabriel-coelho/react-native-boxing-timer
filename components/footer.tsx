@@ -10,12 +10,12 @@ import {
 } from "react-native";
 import ModalToChange from "./modalToChange";
 
-interface Props {
+interface FooterProps {
   backgroundAppColor: string;
   hiddenStatusBar: boolean;
 }
 
-export default function Header({ backgroundAppColor, hiddenStatusBar }: Props) {
+export default function Footer({ backgroundAppColor, hiddenStatusBar }: FooterProps) {
   const [modalEditAction, setModalEditAction] = useState<boolean>(false);
   const positionValue = useRef(new Animated.Value(0)).current;
 
@@ -29,7 +29,7 @@ export default function Header({ backgroundAppColor, hiddenStatusBar }: Props) {
   }, [hiddenStatusBar, positionValue]);
 
   return (
-    <Animated.View style={{ ...style.containerInfo, bottom: positionValue }}>
+    <Animated.View style={{ ...style.containerFooter, bottom: positionValue }}>
       <ModalToChange
         modalVisible={modalEditAction}
         setModalVisible={setModalEditAction}
@@ -60,7 +60,7 @@ export default function Header({ backgroundAppColor, hiddenStatusBar }: Props) {
 }
 
 const style = StyleSheet.create({
-  containerInfo: {
+  containerFooter: {
     flexDirection: "row",
     width: "100%",
     display: "flex",
