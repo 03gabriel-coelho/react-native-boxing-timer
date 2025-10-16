@@ -1,3 +1,5 @@
+import { TimerTypes } from "@/types/timer";
+import { formattingInTime } from "@/utils/formattingInTime";
 import FeatherIcons from "@expo/vector-icons/Feather";
 import FontAwesome6Icons from "@expo/vector-icons/FontAwesome6";
 import { useEffect, useRef, useState } from "react";
@@ -13,9 +15,14 @@ import ModalToChange from "./modalToChange";
 interface FooterProps {
   backgroundAppColor: string;
   hiddenStatusBar: boolean;
+  timer: TimerTypes;
 }
 
-export default function Footer({ backgroundAppColor, hiddenStatusBar }: FooterProps) {
+export default function Footer({
+  backgroundAppColor,
+  hiddenStatusBar,
+  timer,
+}: FooterProps) {
   const [modalEditAction, setModalEditAction] = useState<boolean>(false);
   const positionValue = useRef(new Animated.Value(0)).current;
 
@@ -34,6 +41,8 @@ export default function Footer({ backgroundAppColor, hiddenStatusBar }: FooterPr
         modalVisible={modalEditAction}
         setModalVisible={setModalEditAction}
         backgroundColorButton={backgroundAppColor}
+        timer={timer}
+        onSaveTime={(time) => console.log(time, 'TIMEEEE')}
       />
       <TouchableOpacity
         style={{ ...style.pressableActions }}
@@ -42,13 +51,13 @@ export default function Footer({ backgroundAppColor, hiddenStatusBar }: FooterPr
         }}
       >
         <Text style={{ ...style.textInfo, color: backgroundAppColor }}>
-          Ação 3:00
+          Ação {formattingInTime(timer.action)}
         </Text>
         <FeatherIcons name="edit-2" size={18} color={backgroundAppColor} />
       </TouchableOpacity>
       <TouchableOpacity style={{ ...style.pressableActions }}>
         <Text style={{ ...style.textInfo, color: backgroundAppColor }}>
-          Descanso 01:00
+          Descanso {formattingInTime(timer.interval)}
         </Text>
         <FeatherIcons name="edit-2" size={18} color={backgroundAppColor} />
       </TouchableOpacity>

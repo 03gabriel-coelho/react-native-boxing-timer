@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -17,9 +17,9 @@ const Item = ({ title, id, scrollY }: any) => {
   const isSelected = scrollY >= idHeight - 60 && scrollY < idHeight - 20;
 
   const opacityText = isSelected ? 1 : 0.3;
-
+ 
   const fontSize = isSelected ? 24 : 20;
-
+  
   return (
     <View style={styles.item}>
       <Text
@@ -45,13 +45,17 @@ const getItem = (_data: unknown, index: number) => ({
 
 const getItemCount = (data: any) => 63;
 
-interface TimerListProps {
-  defaultTimer: number;
+interface TimeListProps {
+  type: "minutes" | "seconds";
+  time: {
+    minutes: number;
+    seconds: number;
+  };
+  onChangeTime: (time: number) => void;
 }
 
-export default function TimerList({ defaultTimer }: TimerListProps) {
+export default function TimeList({ type, time, onChangeTime }: TimeListProps) {
   const [scrollY, setScrollY] = useState(0);
-  const [selectedTimer, setSelectedTimer] = useState<number>(defaultTimer);
   const listRef = useRef<VirtualizedList<any>>(null);
 
   const onScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -69,13 +73,22 @@ export default function TimerList({ defaultTimer }: TimerListProps) {
       nextValue = nextValue - isCentralized;
     }
 
-    // console.log(nextValue, 'NEXT VALUE'); ERRO NA ANIMAÇÃO FICAR RETORNANDO ONDE ESTAVA ANTES DE ROLAR
-    // console.log(scrollY, 'SCROLL ATUAL')
+    scrollRef?.scrollTo({ y: nextValue });
 
-    scrollRef?.scrollTo({ y: nextValue});
-
-    setSelectedTimer(nextValue / 40);
+    onChangeTime(nextValue / 40);
   };
+
+  const validateInvalidNumber = useCallback(() => {
+    const scrollRef = listRef?.current?.getScrollRef() as ScrollView;
+
+    if (!time.minutes && !time.seconds && type === "minutes") {
+      scrollRef?.scrollTo({ y: 40 });
+    }
+  }, [time, type]);
+
+  useEffect(() => {
+    validateInvalidNumber();
+  }, [time, validateInvalidNumber]);
 
   return (
     <VirtualizedList
@@ -84,7 +97,6 @@ export default function TimerList({ defaultTimer }: TimerListProps) {
       initialNumToRender={3}
       showsVerticalScrollIndicator={false}
       renderItem={(data) => {
-        // console.log(data.separators, 'DATA')
         return (
           <Item title={data.item.title} id={data.item.id} scrollY={scrollY} />
         );
@@ -102,8 +114,7 @@ export default function TimerList({ defaultTimer }: TimerListProps) {
       getItemCount={getItemCount}
       onScroll={(event) => setScrollY(event.nativeEvent.contentOffset.y)}
       getItem={getItem}
-      initialScrollIndex={defaultTimer} // 30 VALOR DEFAULT
-      // onScrollEndDrag={onScrollEnd}
+      initialScrollIndex={time[type]}
       onMomentumScrollEnd={onScrollEnd}
       scrollEventThrottle={16}
     />

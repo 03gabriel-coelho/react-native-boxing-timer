@@ -1,19 +1,43 @@
+import { TimerTypes } from "@/types/timer";
+import { separatingMinutes, separatingSeconds } from "@/utils/formattingInTime";
 import FeatherIcons from "@expo/vector-icons/Feather";
 import FontAwesome6Icons from "@expo/vector-icons/FontAwesome6";
+import { useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
-import TimerList from "./ui/timerList";
+import TimeList from "./ui/timerList";
+
+type timeType = {
+  minutes: number;
+  seconds: number;
+};
 
 interface ModalToChangeProps {
   modalVisible: boolean;
   setModalVisible: (value: boolean) => void;
   backgroundColorButton: string;
+  timer: TimerTypes;
+  onSaveTime: (time: timeType) => void;
 }
 
 export default function ModalToChange({
   modalVisible,
   setModalVisible,
   backgroundColorButton,
+  timer,
+  onSaveTime,
 }: ModalToChangeProps) {
+  const [time, setTime] = useState<timeType>({
+    minutes: separatingMinutes(timer.action),
+    seconds: separatingSeconds(timer.action),
+  });
+
+  const saveTime = () => {
+    setModalVisible(!modalVisible);
+    onSaveTime(time);
+  };
+
+  console.log(time, "TIME");
+
   return (
     <Modal
       animationType="slide"
@@ -27,9 +51,27 @@ export default function ModalToChange({
         <View style={styles.modalView}>
           <Text style={styles.header}>Alterar tempo de ação</Text>
           <View style={styles.containerLists}>
-            <TimerList defaultTimer={3}/>
-            <View style={{ backgroundColor: backgroundColorButton, width: 1, height: "60%" }}/>
-            <TimerList defaultTimer={0}/>
+            <TimeList
+              type="minutes"
+              time={time}
+              onChangeTime={(minutes) =>
+                setTime((prevTime) => ({ ...prevTime, minutes }))
+              }
+            />
+            <View
+              style={{
+                backgroundColor: backgroundColorButton,
+                width: 1,
+                height: "60%",
+              }}
+            />
+            <TimeList
+              type="seconds"
+              time={time}
+              onChangeTime={(seconds) =>
+                setTime((prevTime) => ({ ...prevTime, seconds }))
+              }
+            />
           </View>
           <View style={styles.containerButton}>
             <Pressable
@@ -37,12 +79,12 @@ export default function ModalToChange({
                 styles.buttonClose,
                 { backgroundColor: backgroundColorButton },
               ]}
-              onPress={() => setModalVisible(!modalVisible)}
+              onPress={saveTime}
             >
               <FeatherIcons
                 name="save"
                 size={18}
-                color={'#FFF'}
+                color={"#FFF"}
                 style={{
                   position: "relative",
                   right: 10,
@@ -68,7 +110,7 @@ export default function ModalToChange({
 }
 
 const styles = StyleSheet.create({
-  header:{
+  header: {
     fontSize: 20,
     fontWeight: "bold",
     paddingTop: 20,

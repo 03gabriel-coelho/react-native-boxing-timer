@@ -1,6 +1,6 @@
 import useBellSound from "@/hooks/useBellSound";
 import { TimerTypes } from "@/types/timer";
-import formattingInTime from "@/utils/formattingInTime";
+import { formattingInTime } from "@/utils/formattingInTime";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import React, { useCallback, useEffect, useState } from "react";
 import {

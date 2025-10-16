@@ -39,6 +39,7 @@ export default function Home() {
       <Footer
         backgroundAppColor={backgroundColor}
         hiddenStatusBar={hiddenStatusBar}
+        timer={timer}
       />
     </View>
   );
