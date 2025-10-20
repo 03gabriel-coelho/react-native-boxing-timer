@@ -166,14 +166,20 @@ export default function Timer({
               actualTimer: prevTimer["action"],
               section: "action",
             }));
-            setBackgroundColor("green");
+            setTimeout(() => setBackgroundColor("green"), 500);
           }
           if (timer.isPaused) {
             setTimer((prevTimer) => ({
               ...prevTimer,
               isPaused: false,
             }));
-            setBackgroundColor(timer.section === "action" ? "green" : "red");
+            setTimeout(
+              () =>
+                setBackgroundColor(
+                  timer.section === "action" ? "green" : "red"
+                ),
+              500
+            );
           }
           setTimeout(() => setBeforeId(null), 300);
           setHiddenStatusBar(true);

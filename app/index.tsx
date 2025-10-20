@@ -40,6 +40,7 @@ export default function Home() {
         backgroundAppColor={backgroundColor}
         hiddenStatusBar={hiddenStatusBar}
         timer={timer}
+        setTimer={setTimer}
       />
     </View>
   );

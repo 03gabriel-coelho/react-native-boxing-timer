@@ -1,4 +1,4 @@
-import { TimerTypes } from "@/types/timer";
+import { SectionTypes, TimerTypes } from "@/types/timer";
 import { separatingMinutes, separatingSeconds } from "@/utils/formattingInTime";
 import FeatherIcons from "@expo/vector-icons/Feather";
 import FontAwesome6Icons from "@expo/vector-icons/FontAwesome6";
@@ -17,6 +17,7 @@ interface ModalToChangeProps {
   backgroundColorButton: string;
   timer: TimerTypes;
   onSaveTime: (time: timeType) => void;
+  section: SectionTypes;
 }
 
 export default function ModalToChange({
@@ -25,10 +26,11 @@ export default function ModalToChange({
   backgroundColorButton,
   timer,
   onSaveTime,
+  section,
 }: ModalToChangeProps) {
   const [time, setTime] = useState<timeType>({
-    minutes: separatingMinutes(timer.action),
-    seconds: separatingSeconds(timer.action),
+    minutes: separatingMinutes(timer[section]),
+    seconds: separatingSeconds(timer[section]),
   });
 
   const saveTime = () => {
@@ -49,7 +51,9 @@ export default function ModalToChange({
     >
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
-          <Text style={styles.header}>Alterar tempo de ação</Text>
+          <Text style={styles.header}>
+            Alterar tempo de {section === "action" ? "ação" : "descanso"}
+          </Text>
           <View style={styles.containerLists}>
             <TimeList
               type="minutes"

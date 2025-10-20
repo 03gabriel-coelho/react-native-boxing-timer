@@ -16,14 +16,17 @@ interface FooterProps {
   backgroundAppColor: string;
   hiddenStatusBar: boolean;
   timer: TimerTypes;
+  setTimer: React.Dispatch<React.SetStateAction<TimerTypes>>;
 }
 
 export default function Footer({
   backgroundAppColor,
   hiddenStatusBar,
   timer,
+  setTimer,
 }: FooterProps) {
   const [modalEditAction, setModalEditAction] = useState<boolean>(false);
+  const [modalEditInterval, setModalEditInterval] = useState<boolean>(false);
   const positionValue = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -38,11 +41,44 @@ export default function Footer({
   return (
     <Animated.View style={{ ...style.containerFooter, bottom: positionValue }}>
       <ModalToChange
+        section="action"
         modalVisible={modalEditAction}
         setModalVisible={setModalEditAction}
         backgroundColorButton={backgroundAppColor}
         timer={timer}
-        onSaveTime={(time) => console.log(time, 'TIMEEEE')}
+        onSaveTime={(time) =>
+          setTimer((prevTimer) => {
+            const newActionTime = time.minutes * 60 + time.seconds;
+
+            return {
+              ...prevTimer,
+              action: newActionTime,
+              actualTimer: newActionTime,
+              section: prevTimer.section !== null ? "action" : null,
+              round: prevTimer.section !== null ? 1 : prevTimer.round,
+            };
+          })
+        }
+      />
+      <ModalToChange
+        section="interval"
+        modalVisible={modalEditInterval}
+        setModalVisible={setModalEditInterval}
+        backgroundColorButton={backgroundAppColor}
+        timer={timer}
+        onSaveTime={(time) =>
+          setTimer((prevTimer) => {
+            const newIntervalTime = time.minutes * 60 + time.seconds;
+
+            return {
+              ...prevTimer,
+              interval: newIntervalTime,
+              actualTimer: prevTimer.action,
+              section: prevTimer.section !== null ? "action" : null,
+              round: prevTimer.section !== null ? 1 : prevTimer.round,
+            };
+          })
+        }
       />
       <TouchableOpacity
         style={{ ...style.pressableActions }}
@@ -55,7 +91,12 @@ export default function Footer({
         </Text>
         <FeatherIcons name="edit-2" size={18} color={backgroundAppColor} />
       </TouchableOpacity>
-      <TouchableOpacity style={{ ...style.pressableActions }}>
+      <TouchableOpacity
+        style={{ ...style.pressableActions }}
+        onPress={() => {
+          setModalEditInterval(true);
+        }}
+      >
         <Text style={{ ...style.textInfo, color: backgroundAppColor }}>
           Descanso {formattingInTime(timer.interval)}
         </Text>
